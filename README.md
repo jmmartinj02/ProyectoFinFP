@@ -34,12 +34,14 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 - Listado de tablas de cada base de datos.  
 - Visualización del contenido de cada tabla (registros).  
 - Creación de tablas con nombre y definición de columnas.  
-- Eliminación de tablas con confirmación visual.  
+- Eliminación de tablas con confirmación visual.
+- Verificar la correcta ejecución de los métodos `obtenerColumnas()` y `actualizarEstructuraTabla()`.(FUNCIONA)
 - Edición de estructura:  
   - Eliminar columnas seleccionadas.  
   - Añadir nuevas columnas.  
-  - Guardar cambios mediante `ALTER TABLE`.  
-
+  - Guardar cambios mediante `ALTER TABLE`.
+  - Añadido nueva funcionalidad(31/10/2025):
+    -Botón de edición de registros, con formulario para modificación(TESTEANDO)
 ---
 
 ### 💻 Funcionalidades adicionales implementadas
@@ -51,9 +53,8 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 ---
 
 ## 🧩 En curso
-- Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.  
-- Verificar la correcta ejecución de los métodos `obtenerColumnas()` y `actualizarEstructuraTabla()`.  
-
+- Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.   
+- Añadirotra funcionalidad,? donde pregunte al hacerle clic, mediante entorno gráfico, sin necesidad de navegar por todo,(debería de preguntar a tutor)
 ---
 
 ## 🧠 Mejoras Pendientes o Posibles Optimizaciones
@@ -72,7 +73,7 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 
 ## 🌱 Futuras Mejoras
 - Autenticación por roles (administrador, técnico, invitado). *(Pendiente de evaluación)*  
-- Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado)*  
+- Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado, AÚN FALTA MODIFICAR EN EL DASHBOARD)*  
 - Historial de operaciones (registro de modificaciones por usuario).  
 - Tema oscuro / claro configurable por el usuario. *(Idea opcional inspirada en Severino)*  
 
