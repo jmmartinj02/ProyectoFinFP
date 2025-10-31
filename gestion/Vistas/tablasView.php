@@ -8,35 +8,32 @@
     <i class="bi bi-arrow-left"></i> Volver
   </a>
 
+  <!-- Título y botón contextual -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">
+      <i class="bi bi-database"></i>
+      <?= !empty($registros) ? 'Registros en ' . htmlspecialchars($table) : 'Tablas en ' . htmlspecialchars($dbName) ?>
+    </h3>
 
-  <!-- Título y botón contextual, en función de que información obtengamos de los controllers y-->
-   <!-- models, nos enseñará una cosa u otra-->
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">
-    <i class="bi bi-database"></i>
-    <?= !empty($registros) ? 'Registros en ' . htmlspecialchars($table) : 'Tablas en ' . htmlspecialchars($dbName) ?>
-  </h3>
-<!-- si la variable tablas, NO ESTÁ VACÍA y los resgistros vacios-->
- <!--significa que estamos en la vista de listado de tablas-->
-  <?php if (!empty($tablas) && empty($registros)): ?>
-    <!-- Botón para crear nueva tabla -->
-    <a href="index.php?controller=GestionController&action=formCrearTabla&db=<?= urlencode($dbName) ?>" 
-       class="btn btn-success btn-sm">
-      <i class="bi bi-plus-circle"></i> Crear nueva tabla
-    </a>
-    <!-- si la variable registros, NO ESTÁ VACÍA-->
- <!--significa que estamos en la vista de registros con lo que mostrará un botón de añadir registro-->
-  <?php elseif (!empty($registros)): ?>
-    <!-- Botón para añadir nuevo registro -->
-    <a href="index.php?controller=GestionController&action=formInsertarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
-       class="btn btn-success btn-sm">
-      <i class="bi bi-plus-circle"></i> Insertar nuevo registro
-    </a>
-  <?php endif; ?>
-</div>
+    <?php if (!empty($tablas) && empty($registros)): ?>
+      <!-- Botón para crear nueva tabla -->
+      <a href="index.php?controller=GestionController&action=formCrearTabla&db=<?= urlencode($dbName) ?>" 
+         class="btn btn-success btn-sm">
+        <i class="bi bi-plus-circle"></i> Crear nueva tabla
+      </a>
 
+    <?php elseif (!empty($registros)): ?>
+      <!-- Botón para añadir nuevo registro -->
+      <a href="index.php?controller=GestionController&action=formInsertarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
+         class="btn btn-success btn-sm">
+        <i class="bi bi-plus-circle"></i> Insertar nuevo registro
+      </a>
+    <?php endif; ?>
+  </div>
 
-  <p class="text-muted mb-4">Selecciona una tabla para ver su contenido o gestiona su estructura.</p>
+  <p class="text-muted mb-4">
+    Selecciona una tabla para ver su contenido o gestiona su estructura.
+  </p>
 
   <!-- Listado de tablas -->
   <?php if (!empty($tablas)): ?>
@@ -73,6 +70,7 @@
     <h4 class="mt-5 mb-3">
       <i class="bi bi-list-ul"></i> Registros en <strong><?= htmlspecialchars($table) ?></strong>
     </h4>
+
     <div class="table-responsive">
       <table class="table table-bordered table-sm align-middle">
         <thead class="table-light">
@@ -80,14 +78,42 @@
             <?php foreach (array_keys($registros[0]) as $col): ?>
               <th><?= htmlspecialchars($col) ?></th>
             <?php endforeach; ?>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($registros as $fila): ?>
             <tr>
               <?php foreach ($fila as $valor): ?>
-                <td><?= htmlspecialchars($valor ?? '') ?></td>
+                <td><?= htmlspecialchars($valor) ?></td>
               <?php endforeach; ?>
+
+                  <td class="text-center">
+                  <?php
+                    // Detectar clave (id o primera columna disponible)
+                    $claveColumna = array_key_first($fila);
+                    $claveValor = $fila[$claveColumna] ?? null;
+                  ?>
+
+              <?php if ($claveValor !== null): ?>
+                <div class="d-flex justify-content-center gap-2">
+                  <!-- Botón Editar -->
+                  <a href="index.php?controller=GestionController&action=editarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
+                    class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                  </a>
+
+                  <!-- Botón Eliminar (confirmación de registro individual) -->
+                  <a href="index.php?controller=GestionController&action=confirmarEliminarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
+                    class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i> Eliminar
+                  </a>
+                </div>
+              <?php else: ?>
+                <span class="text-muted small">Sin clave</span>
+              <?php endif; ?>
+            </td>
+
             </tr>
           <?php endforeach; ?>
         </tbody>

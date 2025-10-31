@@ -167,6 +167,46 @@ class GestionController {
             'tabla' => $tabla
         ]);
     }
+  public function confirmarEliminarRegistro() {
+    if (!isset($_GET['db'], $_GET['table'], $_GET['id'])) {
+        View::show('errorView', ['mensaje' => 'Faltan parámetros para eliminar el registro.']);
+        return;
+    }
+
+    $db = $_GET['db'];
+    $table = $_GET['table'];
+    $id = $_GET['id'];
+
+    View::show('mensajeView', [
+        'mensaje' => "¿Seguro que deseas eliminar este registro?",
+        'confirmar' => "index.php?controller=GestionController&action=eliminarRegistro&db=$db&table=$table&id=$id",
+        'volver' => "index.php?controller=GestionController&action=ver&db=$db&table=$table"
+    ]);
+}
+
+
+    public function eliminarRegistro() {
+    if (!isset($_GET['db'], $_GET['table'], $_GET['id'])) {
+        View::show('errorView', ['mensaje' => 'Faltan parámetros para eliminar el registro.']);
+        return;
+    }
+
+    $db = $_GET['db'];
+    $table = $_GET['table'];
+    $id = $_GET['id'];
+
+    $resultado = $this->model->eliminarRegistroPorId($db, $table, $id);
+
+    if ($resultado) {
+        View::show('mensajeView', [
+            'mensaje' => "Registro eliminado correctamente.",
+            'volver' => "index.php?controller=GestionController&action=ver&db=$db&table=$table"
+        ]);
+    } else {
+        View::show('errorView', ['mensaje' => 'No se pudo eliminar el registro o no existe.']);
+    }
+}
+
 
 // Una vez pulsado el boton de borrado de tabla, se obtiene la base de datos y la tabla, para luego borrarla
     public function eliminarTabla() {
@@ -379,6 +419,50 @@ public function actualizarRegistro() {
     unset($datos['db'], $datos['table'], $datos['id']);
 
     $resultado = $this->model->actualizarRegistro($db, $table, $id, $datos);
+
+    if ($resultado) {
+        View::show('mensajeView', [
+            'mensaje' => "Registro actualizado correctamente.",
+            'volver' => "index.php?controller=GestionController&action=ver&db=$db&table=$table"
+        ]);
+    } else {
+        View::show('errorView', ['mensaje' => 'Error al actualizar el registro.']);
+    }
+}
+public function editarRegistroEdit() {
+    if (!isset($_GET['db'], $_GET['table'], $_GET['id'])) {
+        View::show('errorView', ['mensaje' => 'Faltan parámetros para editar.']);
+        return;
+    }
+
+    $db = $_GET['db'];
+    $table = $_GET['table'];
+    $id = $_GET['id'];
+
+    $registro = $this->model->obtenerRegistroPorId($db, $table, $id);
+    $columnas = $this->model->obtenerColumnas($db, $table);
+
+    View::show('editarRegistroView', [
+        'db' => $db,
+        'table' => $table,
+        'registro' => $registro,
+        'columnas' => $columnas
+    ]);
+}
+
+public function actualizarRegistroEdit() {
+    if (!isset($_POST['db'], $_POST['table'], $_POST['id'])) {
+        View::show('errorView', ['mensaje' => 'Datos incompletos para la actualización.']);
+        return;
+    }
+
+    $db = $_POST['db'];
+    $table = $_POST['table'];
+    $id = $_POST['id'];
+    $datos = $_POST;
+    unset($datos['db'], $datos['table'], $datos['id']);
+
+    $resultado = $this->model->actualizarRegistroEdit($db, $table, $id, $datos);
 
     if ($resultado) {
         View::show('mensajeView', [

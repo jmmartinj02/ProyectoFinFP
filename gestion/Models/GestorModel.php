@@ -296,11 +296,50 @@ public function listarBasesDeDatos() {
 
     return $resp;
 }
-public function obtenerRegistroPorId($db, $table, $id) {
+public function obtenerRegistroPorIdEdit($db, $table, $id) {
     $conexion = (new Database($db))->getConnection();
     $stmt = $conexion->prepare("SELECT * FROM `$table` WHERE id = :id");
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function actualizarRegistroEdit($db, $table, $id, $datos) {
+    $conexion = (new Database($db))->getConnection();
+
+    $setPartes = [];
+    foreach ($datos as $columna => $valor) {
+        $setPartes[] = "`$columna` = :$columna";
+    }
+
+    $sql = "UPDATE `$table` SET " . implode(',', $setPartes) . " WHERE id = :id";
+    $stmt = $conexion->prepare($sql);
+
+    foreach ($datos as $columna => $valor) {
+        $stmt->bindValue(':' . $columna, $valor);
+    }
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+    return $stmt->execute();
+}
+//como no todas las tablas tiene un campo ID, ME HA DADO FALLO Y HE TENIDO QUE CAMBIARLO POR ESTO.
+
+public function obtenerRegistroPorId($db, $table, $id) {
+    $conexion = (new Database($db))->getConnection();
+
+    // Detectar columnas de la tabla
+    $colsStmt = $conexion->query("SHOW COLUMNS FROM `$table`");
+    $columnas = $colsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Si la tabla tiene 'id', usamos ese campo; si no, el primero
+    $columnaClave = in_array('id', $columnas) ? 'id' : $columnas[0];
+
+    // Preparar la consulta dinámica
+    $sql = "SELECT * FROM `$table` WHERE `$columnaClave` = :valor";
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindValue(':valor', $id);
+    $stmt->execute();
+
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
@@ -321,6 +360,25 @@ public function actualizarRegistro($db, $table, $id, $datos) {
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
     return $stmt->execute();
+}
+public function eliminarRegistroPorId($db, $table, $id) {
+    try {
+        $conexion = (new Database($db))->getConnection();
+
+        // Detectar columnas de la tabla
+        $colsStmt = $conexion->query("SHOW COLUMNS FROM `$table`");
+        $columnas = $colsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Usar 'id' si existe, sino la primera columna
+        $columnaClave = in_array('id', $columnas) ? 'id' : $columnas[0];
+
+        $sql = "DELETE FROM `$table` WHERE `$columnaClave` = :valor LIMIT 1";
+        $stmt = $conexion->prepare($sql);
+        $stmt->bindValue(':valor', $id);
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        return false;
+    }
 }
 
 
