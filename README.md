@@ -55,7 +55,7 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 ## 🧩 En curso
 - Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.   
 - Añadirotra funcionalidad,? donde pregunte al hacerle clic, mediante entorno gráfico, sin necesidad de navegar por todo,(debería de preguntar a tutor)
----
+- Añadir, creación y almacenamiento de Vistas.
 
 ## 🧠 Mejoras Pendientes o Posibles Optimizaciones
 
