@@ -15,11 +15,11 @@
 
         <?php if (!empty($volver)): ?>
           <a href="<?= htmlspecialchars($volver) ?>" class="btn btn-secondary px-4">
-            <i class="bi bi-arrow-left"></i> Cancelar
+            <i class="bi bi-arrow-left"></i> Volver
           </a>
         <?php else: ?>
           <a href="index.php?controller=GestionController&action=inicio" class="btn btn-secondary px-4">
-            <i class="bi bi-arrow-left"></i> Volver al inicio
+            <i class="bi bi-arrow-left"></i> Volver al dashboard
           </a>
         <?php endif; ?>
       </div>

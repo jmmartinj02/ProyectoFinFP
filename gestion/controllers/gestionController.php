@@ -5,14 +5,20 @@ require_once __DIR__ . '/../Vistas/View.php';
 
 class GestionController {
     private $model;
+    public function inicio() {
+    // 🔍 Comprobación inicial: si no hay base de logs configurada, redirigir
+    if (empty($_SESSION['log_db'])) {
+        header("Location: index.php?controller=LogsController&action=configurar");
+        exit;
+    }
+
+    // Si ya hay base de logs, continuar normalmente
+    $databases = $this->model->listarBasesDeDatos();
+    View::show('homeView', ['databases' => $databases]);
+}
 
     public function __construct() {
         $this->model = new GestorModel();
-    }
-
-    public function inicio() {
-        $databases = $this->model->listarBasesDeDatos();
-        View::show('homeView', ['databases' => $databases]);
     }
 
     public function tablas() {
