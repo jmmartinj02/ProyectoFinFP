@@ -58,6 +58,70 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 - Añadir, creación y almacenamiento de Vistas.
 
 ## 🧠 Mejoras Pendientes o Posibles Optimizaciones
+✅ 1. Sistema de Logs de Actividad (alta prioridad)
+
+Objetivo: registrar todas las operaciones realizadas dentro del sistema para llevar trazabilidad y control.
+Detalles:
+
+Registrar usuario, acción (INSERT, UPDATE, DELETE, SELECT, etc.), fecha/hora, base de datos y tabla afectadas.
+
+Guardar los logs en una base de datos interna (por ejemplo gestor_logs).
+
+Crear vista dedicada para visualizarlos desde el panel de administración.
+
+Posibilidad futura de filtrarlos por usuario o tipo de acción.
+
+💾 2. Copias de Seguridad y Restauración
+
+Objetivo: permitir crear y restaurar backups de las bases de datos gestionadas.
+Detalles:
+
+Botón para generar copia de seguridad (mysqldump o mediante consultas SHOW CREATE TABLE + SELECT).
+
+Descarga automática del archivo .sql.
+
+Opción para restaurar una copia desde un archivo local validado.
+
+Posibilidad futura de automatizar copias con cron o script interno.
+
+🧮 3. Sistema de Vistas o Consultas Guardadas
+
+Objetivo: ofrecer una forma de guardar y reutilizar consultas SQL frecuentes o informes personalizados.
+Detalles:
+
+Crear tabla vistas_guardadas con campos (id, nombre, descripcion, sql, db).
+
+Desde el módulo de consultas, poder guardar una consulta actual como vista.
+
+Listar y ejecutar vistas guardadas con un clic.
+
+Futura extensión: compartir vistas entre usuarios o exportarlas.
+
+🧩 4. Sistema de Relaciones entre Tablas (mejora pendiente de creación de tablas)
+
+Objetivo: permitir definir claves foráneas y relaciones entre tablas directamente desde la interfaz.
+Detalles:
+
+Al crear una nueva tabla, detectar si otras tablas tienen campos compatibles (por ejemplo, id o user_id).
+
+Permitir al usuario marcar campos como foráneos y seleccionar la tabla/campo de referencia.
+
+Generar automáticamente la restricción FOREIGN KEY (...) REFERENCES ....
+
+Mostrar visualmente las relaciones en la vista de tablas (opcionalmente con un gráfico o diagrama ER sencillo).
+
+🧱 5. Módulo de Gestión de Estructura Avanzada
+
+Objetivo: mejorar la edición de tablas ya existentes.
+Detalles:
+
+Permitir renombrar columnas y cambiar sus tipos desde el interfaz.
+
+Añadir índices o claves únicas.
+
+Opción para duplicar una tabla (estructura + datos).
+
+Validación previa antes de aplicar cambios con ALTER TABLE.
 
 ### A nivel técnico
 - Permitir que otros compañeros instalen la aplicación y administren su propia base de datos desde su entorno.  
