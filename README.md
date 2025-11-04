@@ -55,7 +55,7 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 ##  En curso
 - Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.   
 - Añadir, creación y almacenamiento de Vistas.
-- Funcionalidad de almacenamiento de LOGS.
+- Funcionalidad de almacenamiento de LOGS, creacion de la base de datos LOGS y su tabla, automatizado, falta, modificar TODOS los controllers/models, para almacenar información en dicha BBDD/tabla.
 
 ## Mejoras Pendientes o Posibles Optimizaciones
  1. Sistema de Logs de Actividad (alta prioridad)
