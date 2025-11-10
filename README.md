@@ -56,6 +56,8 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 - Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.   
 - Añadir, creación y almacenamiento de Vistas.
 - Funcionalidad de almacenamiento de LOGS, creacion de la base de datos LOGS y su tabla, automatizado, falta, modificar TODOS los controllers/models, para almacenar información en dicha BBDD/tabla.(mejorado, para que autodetecte bases de datos cuyo nombre sea *logs)
+- Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado, AÚN FALTA MODIFICAR EN EL DASHBOARD)*
+- - Historial de operaciones (registro de modificaciones por usuario, ya lo hace el sistema de Logs).  
 
 ## Mejoras Pendientes o Posibles Optimizaciones
  1. Sistema de Logs de Actividad (alta prioridad)
@@ -106,11 +108,12 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 
 ---
 
-## 🌱 Futuras Mejoras
-- Autenticación por roles (administrador, técnico, invitado). *(Pendiente de evaluación)*  
-- Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado, AÚN FALTA MODIFICAR EN EL DASHBOARD)*  
-- Historial de operaciones (registro de modificaciones por usuario).  
-- Tema oscuro / claro configurable por el usuario. *(Idea opcional inspirada en Severino)*  
+## 🌱 Futuras Mejoras 
+- Copias de seguridad.
+- Tema oscuro / claro configurable por el usuario. *(Idea opcional inspirada en Severino)*
+## Ideas descartadas:
+- Autentificacion por roles, lo he hecho para que el usuario final sea el de un administrador
+- 
 
 ---
 
