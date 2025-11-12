@@ -380,6 +380,45 @@ public function eliminarRegistroPorId($db, $table, $id) {
         return false;
     }
 }
+// ==================== VISTAS SQL ====================
+
+public function listarVistas($db) {
+    try {
+        $stmt = $this->db->query("SHOW FULL TABLES IN `$db` WHERE Table_Type = 'VIEW'");
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+public function crearVista($db, $nombre, $consultaSQL) {
+    try {
+        $sql = "CREATE OR REPLACE VIEW `$db`.`$nombre` AS $consultaSQL";
+        $this->db->exec($sql);
+        return true;
+    } catch (PDOException $e) {
+        return $e->getMessage();
+    }
+}
+
+public function eliminarVista($db, $nombre) {
+    try {
+        $sql = "DROP VIEW IF EXISTS `$db`.`$nombre`";
+        $this->db->exec($sql);
+        return true;
+    } catch (PDOException $e) {
+        return $e->getMessage();
+    }
+}
+
+public function obtenerVista($db, $nombre, $limit = 100) {
+    try {
+        $stmt = $this->db->query("SELECT * FROM `$db`.`$nombre` LIMIT $limit");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
 
 
 
