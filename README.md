@@ -48,14 +48,13 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 - Ejecución de consultas SQL manuales desde la interfaz web.  
 - Monitorización básica de rendimiento y tamaño de tablas.  
 - Sistema de autenticación simple (login de acceso) utilizando las credenciales del sistema.  
-- Caducidad de sesión por inactividad.  
-
+- Caducidad de sesión por inactividad.
+- Funcionalidad de almacenamiento de LOGS, creacion de la base de datos LOGS y su tabla, automatizado, falta, modificar TODOS los controllers/models, para almacenar información en dicha BBDD/tabla.(mejorado, para que autodetecte bases de datos cuyo nombre sea *logs)
 ---
 
 ##  En curso
 - Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.   
-- Añadir, creación y almacenamiento de Vistas.
-- Funcionalidad de almacenamiento de LOGS, creacion de la base de datos LOGS y su tabla, automatizado, falta, modificar TODOS los controllers/models, para almacenar información en dicha BBDD/tabla.(mejorado, para que autodetecte bases de datos cuyo nombre sea *logs)
+- Añadir, creación y almacenamiento de Vistas.(problemas con el almacenamiento de la base de datos, lo dejamos para otro momento llevo atascado 5 días)
 - Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado, AÚN FALTA MODIFICAR EN EL DASHBOARD)*
 - - Historial de operaciones (registro de modificaciones por usuario, ya lo hace el sistema de Logs).  
 
