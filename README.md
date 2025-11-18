@@ -1,7 +1,7 @@
 # GestorRemotoBD
 **Proyecto Fin de Ciclo – Administración de Sistemas Informáticos en Red (ASIR)**  
 **Autor:** José Manuel Martín Jaén  
-**Fecha:** Octubre 2025  
+**Fecha:** Octubre/Noviembre 2025  
 
 Aplicación web desarrollada en **PHP (Modelo–Vista–Controlador)** para la administración remota de **bases de datos MySQL/MariaDB** alojadas en servidores o instancias en la nube (por ejemplo, AWS).  
 
@@ -10,7 +10,17 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 ---
 
 ##  Funcionalidades Implementadas
-
+1. Sistema de Logs de Actividad (alta prioridad)
+  - Objetivo: registrar todas las operaciones realizadas dentro del sistema para llevar trazabilidad y control. Detalles:
+  - Registrar usuario, acción (INSERT, UPDATE, DELETE, SELECT, etc.), fecha/hora, base de datos y tabla afectadas.
+  - Guardar los logs en una base de datos interna (por ejemplo gestor_logs).
+  - Crear vista dedicada para visualizarlos desde el panel de administración.
+2. Copias de Seguridad y Restauración
+  Objetivo: permitir crear y restaurar backups de las bases de datos gestionadas.
+    Detalles:
+  - Botón para generar copia de seguridad (mysqldump o mediante consultas SHOW CREATE TABLE + SELECT).
+  - Descarga automática del archivo .sql.
+  - Opción para restaurar una copia desde un archivo local validado.
 ### 🔧 Estructura base del proyecto
 - Entorno PHP en arquitectura **Modelo–Vista–Controlador (MVC)**.  
 - Directorios organizados: `controllers/`, `Models/`, `Vistas/`, `includes/`, `db/`.  
@@ -53,25 +63,13 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 ---
 
 ##  En curso
-- Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.   
-- Añadir, creación y almacenamiento de Vistas.(problemas con el almacenamiento de la base de datos, lo dejamos para otro momento llevo atascado 5 días)
+- Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.
+- Copias de seguridad.
+- Añadir, creación y almacenamiento de Vistas.(problemas con el almacenamiento de la base de datos en variables, lo dejamos para otro momento llevo atascado 5 días)
 - Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado, AÚN FALTA MODIFICAR EN EL DASHBOARD)*
 - - Historial de operaciones (registro de modificaciones por usuario, ya lo hace el sistema de Logs).  
 
 ## Mejoras Pendientes o Posibles Optimizaciones
- 1. Sistema de Logs de Actividad (alta prioridad)
-  - Objetivo: registrar todas las operaciones realizadas dentro del sistema para llevar trazabilidad y control. Detalles:
-  - Registrar usuario, acción (INSERT, UPDATE, DELETE, SELECT, etc.), fecha/hora, base de datos y tabla afectadas.
-  - Guardar los logs en una base de datos interna (por ejemplo gestor_logs).
-  - Crear vista dedicada para visualizarlos desde el panel de administración.
-  - Posibilidad futura de filtrarlos por usuario o tipo de acción.
-
-💾 2. Copias de Seguridad y Restauración
-  Objetivo: permitir crear y restaurar backups de las bases de datos gestionadas.
-    Detalles:
-  - Botón para generar copia de seguridad (mysqldump o mediante consultas SHOW CREATE TABLE + SELECT).
-  - Descarga automática del archivo .sql.
-  - Opción para restaurar una copia desde un archivo local validado.
 
      3. Sistema de Vistas o Consultas Guardadas
   - Objetivo: ofrecer una forma de guardar y reutilizar consultas SQL frecuentes o informes personalizados.
@@ -108,7 +106,6 @@ El sistema está diseñado para ser accesible desde un entorno web, permitiendo 
 ---
 
 ## 🌱 Futuras Mejoras 
-- Copias de seguridad.
 - Tema oscuro / claro configurable por el usuario. *(Idea opcional inspirada en Severino)*
 ## Ideas descartadas:
 - Autentificacion por roles, lo he hecho para que el usuario final sea el de un administrador
