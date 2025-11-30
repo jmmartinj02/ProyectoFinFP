@@ -99,7 +99,7 @@ class BackupModel {
         $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
 
         $lastDate = $this->getLastBackupDate();
-        if (!$lastDate) return "-- No previous backup date\n";
+        if (!$lastDate) return "-- No hay backup anterior\n";
 
         foreach ($tables as $t) {
             // Requiere que las tablas tengan columna updated_at
