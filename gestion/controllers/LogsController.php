@@ -13,7 +13,7 @@ class LogsController {
     public function configurar() {
         // Si ya hay una base configurada en sesión → ir al inicio
         if (!empty($_SESSION['log_db'])) {
-            header("Location: index.php?controller=GestionController&action=inicio");
+            header("Location: index.php?controller=gestionController&action=inicio");
             exit;
         }
 
@@ -38,7 +38,7 @@ class LogsController {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
                 ");
 
-                header("Location: index.php?controller=GestionController&action=inicio");
+                header("Location: index.php?controller=gestionController&action=inicio");
                 exit;
             }
 
@@ -52,7 +52,7 @@ class LogsController {
     //si relleno el formilario y lo envío, la crea.
     public function crear() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // ✅ corregido: debe recoger `nombreLogs` del formulario
+            // no me pillaba el nombre, esto se supone que lo ha solucionado
             $nombre = trim($_POST['nombre'] ?? '');
             if (empty($nombre)) {
                 View::show('configurarLogsView', ['error' => 'Debes indicar un nombre para la base de logs.']);
@@ -79,7 +79,7 @@ class LogsController {
                 // Guardar en sesión
                 $_SESSION['log_db'] = $nombre;
 
-                header("Location: index.php?controller=GestionController&action=inicio");
+                header("Location: index.php?controller=gestionController&action=inicio");
                 exit;
 
             } catch (PDOException $e) {

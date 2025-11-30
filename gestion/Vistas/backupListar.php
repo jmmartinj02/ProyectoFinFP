@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
 
 <div class="container mt-4">
   <h2><i class="bi bi-folder2-open"></i> Copias de seguridad disponibles</h2>
@@ -14,10 +14,17 @@
           <li class="list-group-item d-flex justify-content-between">
               <?= basename($file) ?>
               <div>
-                  <a class="btn btn-sm btn-success" 
-                     href="<?= $file ?>" download>Descargar</a>
-                  <a class="btn btn-sm btn-danger"
-                     href="<?= $file ?>">Eliminar</a>
+                    <a class="btn btn-sm btn-success"
+                    href="index.php?controller=BackupController&action=descargar&tipo=<?= $tipo ?>&file=<?= basename($file) ?>">
+                    Descargar
+                    </a>
+
+                    <a class="btn btn-sm btn-danger"
+                    href="index.php?controller=BackupController&action=eliminar&tipo=<?= $tipo ?>&file=<?= basename($file) ?>"
+                    onclick="return confirm('¿Seguro que deseas eliminar este backup?');">
+                    Eliminar
+                    </a>
+
               </div>
           </li>
       <?php endforeach; ?>
@@ -25,4 +32,4 @@
   <?php endforeach; ?>
 </div>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -98,13 +98,13 @@
               <?php if ($claveValor !== null): ?>
                 <div class="d-flex justify-content-center gap-2">
                   <!-- Botón Editar -->
-                  <a href="index.php?controller=GestionController&action=editarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
+                  <a href="index.php?controller=GestionController&action=editarRegistroEdit&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
                     class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-pencil"></i> Editar
                   </a>
 
                   <!-- Botón Eliminar (confirmación de registro individual) -->
-                  <a href="index.php?controller=GestionController&action=confirmarEliminarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
+                  <a href="index.php?controller=GestionController&action=eliminarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
                     class="btn btn-sm btn-outline-danger">
                     <i class="bi bi-trash"></i> Eliminar
                   </a>

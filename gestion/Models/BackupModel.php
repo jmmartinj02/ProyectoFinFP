@@ -143,7 +143,7 @@ class BackupModel {
         }
     }
 
-    // Ordenar por fecha descendente
+    // ordenando los archivos por fecha
     usort($result, function($a, $b) {
         return strtotime($b['fecha']) <=> strtotime($a['fecha']);
     });

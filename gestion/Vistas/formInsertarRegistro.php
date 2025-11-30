@@ -24,7 +24,8 @@
     <?php endforeach; ?>
 
     <button type="submit" class="btn btn-primary">Guardar registro</button>
-    <a href="index.php?controller=GestionController&action=ver&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
+    <a href="index.php?controller=GestionController
+    &action=ver&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
        class="btn btn-outline-secondary">Cancelar</a>
   </form>
 </div>

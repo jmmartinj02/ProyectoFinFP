@@ -1,4 +1,4 @@
-<?php include __DIR__ . '/includes/header.php'; ?>
+<?php include __DIR__ . '/../includes/header.php'; ?>
 
 <div class="container mt-4">
   <h2><i class="bi bi-plus-circle"></i> Crear copia de seguridad</h2>
@@ -30,4 +30,4 @@
   </form>
 </div>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

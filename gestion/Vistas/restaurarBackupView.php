@@ -19,7 +19,7 @@
         <select name="backup" class="form-select" required>
             <option value="">-- Selecciona un archivo --</option>
 
-            <?php foreach ((new BackupModel())->listBackups() as $b): ?>
+            <?php foreach ((new BackupModel())->listarBackups() as $b): ?>
               <option value="<?= htmlspecialchars($b) ?>"><?= htmlspecialchars($b) ?></option>
             <?php endforeach; ?>
 

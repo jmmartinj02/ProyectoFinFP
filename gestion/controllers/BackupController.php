@@ -123,4 +123,54 @@ class BackupController {
             "files" => $files
         ]);
     }
+    /* ===============================
+       DESCARGAR COPIA
+       =============================== */
+    public function descargar() {
+    if (!isset($_GET['tipo']) || !isset($_GET['file'])) {
+        die("Parámetros inválidos.");
+    }
+
+    $tipo = $_GET['tipo'];
+    $file = basename($_GET['file']); // seguridad
+
+    $path = __DIR__ . "/../../backups/$tipo/$file";
+
+    if (!file_exists($path)) {
+        die("El archivo no existe.");
+    }
+
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/sql');
+    header('Content-Disposition: attachment; filename="' . $file . '"');
+    header('Content-Length: ' . filesize($path));
+    flush();
+
+    readfile($path);
+    exit;
+}
+    /* ===============================
+       DESCARGAR COPIA
+       =============================== */
+public function eliminar() {
+    if (!isset($_GET['tipo']) || !isset($_GET['file'])) {
+        die("Parámetros inválidos.");
+    }
+
+    $tipo = $_GET['tipo'];
+    $file = basename($_GET['file']); // seguridad
+
+    $path = __DIR__ . "/../../backups/$tipo/$file";
+
+    if (!file_exists($path)) {
+        die("El archivo no existe.");
+    }
+
+    unlink($path);
+
+    header("Location: index.php?controller=BackupController&action=listar");
+    exit;
+}
+
+
 }
