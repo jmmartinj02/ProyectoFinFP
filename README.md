@@ -1,120 +1,137 @@
-# GestorRemotoBD
-**Proyecto Fin de Ciclo – Administración de Sistemas Informáticos en Red (ASIR)**  
-**Autor:** José Manuel Martín Jaén  
-**Fecha:** Octubre/Noviembre 2025  
+# 🚀 GestorRemotoBD  
+**Proyecto de Fin de Ciclo – ASIR (Administración de Sistemas Informáticos en Red)**  
+**Autor:** José Manuel Martín Jaén · 2025  
 
-Aplicación web desarrollada en **PHP (Modelo–Vista–Controlador)** para la administración remota de **bases de datos MySQL/MariaDB** alojadas en servidores o instancias en la nube (por ejemplo, AWS).  
-
-El sistema está diseñado para ser accesible desde un entorno web, permitiendo la gestión completa de las bases de datos sin necesidad de herramientas externas como phpMyAdmin o conexiones SSH.
+Aplicación web desarrollada en **PHP (MVC)** que permite administrar de forma remota bases de datos **MySQL/MariaDB**, ofreciendo una alternativa ligera a phpMyAdmin con un panel limpio, y adaptado para entornos educativos o cloud (AWS, VPS, contenedores, etc.).
 
 ---
 
-##  Funcionalidades Implementadas
-1. Sistema de Logs de Actividad (alta prioridad)
-  - Objetivo: registrar todas las operaciones realizadas dentro del sistema para llevar trazabilidad y control. Detalles:
-  - Registrar usuario, acción (INSERT, UPDATE, DELETE, SELECT, etc.), fecha/hora, base de datos y tabla afectadas.
-  - Guardar los logs en una base de datos interna (por ejemplo gestor_logs).
-  - Crear vista dedicada para visualizarlos desde el panel de administración.
-2. Copias de Seguridad y Restauración
-  Objetivo: permitir crear y restaurar backups de las bases de datos gestionadas.
-    Detalles:
-  - Botón para generar copia de seguridad (mysqldump o mediante consultas SHOW CREATE TABLE + SELECT).
-  - Descarga automática del archivo .sql.
-  - Opción para restaurar una copia desde un archivo local validado.
-### 🔧 Estructura base del proyecto
-- Entorno PHP en arquitectura **Modelo–Vista–Controlador (MVC)**.  
-- Directorios organizados: `controllers/`, `Models/`, `Vistas/`, `includes/`, `db/`.  
-- Sistema de rutas basado en:  
-  `index.php?controller=NombreController&action=metodo`  
-- Header y footer globales reutilizables.  
-- Integración con **Bootstrap 5**, sin uso de JavaScript externo (salvo recursos visuales menores).  
+# 📚 Características Principales
+
+## ✔️ Gestión completa de bases de datos
+- Listado dinámico de bases existentes.
+- Creación y eliminación de bases de datos.
+- Detección automática de bases críticas del sistema.
+- Visualización de tablas, tamaños y estadísticas.
 
 ---
 
-### 🗄️ Módulo principal – Gestión de bases de datos
-- Listado de bases de datos disponibles.  
-- Acceso a tablas de cada base.  
-- Creación de nuevas bases de datos.  
-- Eliminación de bases de datos con confirmación previa.  
-- Interfaz limpia y coherente, con uso de `mensajeView` para confirmaciones de borrado.
+## ✔️ Módulo de Tablas
+- Listado completo de tablas por base.
+- Vista de registros en formato tabla.
+- Creación de tablas con definición de columnas.
+- Eliminación confirmada de tablas.
+- Edición de estructura:
+  - Añadir columnas  
+  - Eliminar columnas  
+  - Modificar tipos *(en desarrollo)*  
+- Edición de registros *(31/10/2025 — en pruebas)*.
 
 ---
 
-### Módulo de gestión de tablas
-- Listado de tablas de cada base de datos.  
-- Visualización del contenido de cada tabla (registros).  
-- Creación de tablas con nombre y definición de columnas.  
-- Eliminación de tablas con confirmación visual.
-- Verificar la correcta ejecución de los métodos `obtenerColumnas()` y `actualizarEstructuraTabla()`.(FUNCIONA)
-- Edición de estructura:  
-  - Eliminar columnas seleccionadas.  
-  - Añadir nuevas columnas.  
-  - Guardar cambios mediante `ALTER TABLE`.
-  - Añadido nueva funcionalidad(31/10/2025):
-    -Botón de edición de registros, con formulario para modificación(TESTEANDO)
----
-
-### Funcionalidades adicionales implementadas
-- Ejecución de consultas SQL manuales desde la interfaz web.  
-- Monitorización básica de rendimiento y tamaño de tablas.  
-- Sistema de autenticación simple (login de acceso) utilizando las credenciales del sistema.  
-- Caducidad de sesión por inactividad.
-- Funcionalidad de almacenamiento de LOGS, creacion de la base de datos LOGS y su tabla, automatizado, falta, modificar TODOS los controllers/models, para almacenar información en dicha BBDD/tabla.(mejorado, para que autodetecte bases de datos cuyo nombre sea *logs)
----
-
-##  En curso
-- Integrar el botón **“Editar estructura”** en la vista `tablasView.php`.
-- Copias de seguridad.
-- Añadir, creación y almacenamiento de Vistas.(problemas con el almacenamiento de la base de datos en variables, lo dejamos para otro momento llevo atascado 5 días)
-- Modificar la obtención de bases de datos para ocultar las internas del sistema y evitar borrados críticos. *(Parcialmente implementado, AÚN FALTA MODIFICAR EN EL DASHBOARD)*
-- - Historial de operaciones (registro de modificaciones por usuario, ya lo hace el sistema de Logs).  
-
-## Mejoras Pendientes o Posibles Optimizaciones
-
-     3. Sistema de Vistas o Consultas Guardadas
-  - Objetivo: ofrecer una forma de guardar y reutilizar consultas SQL frecuentes o informes personalizados.
-  Detalles:
-  - Crear tabla vistas_guardadas con campos (id, nombre, descripcion, sql, db).
-  - Desde el módulo de consultas, poder guardar una consulta actual como vista.(Así, aprovecho vistas)
-  - Listar y ejecutar vistas guardadas con un clic.
-
-     4. Sistema de Relaciones entre Tablas (mejora pendiente de creación de tablas)
-  - Objetivo: permitir definir claves foráneas y relaciones entre tablas directamente desde la interfaz.
-    Detalles:
-  - Al crear una nueva tabla, detectar si otras tablas tienen campos compatibles (por ejemplo, id o user_id).
-  - Permitir al usuario marcar campos como foráneos y seleccionar la tabla/campo de referencia.
-  - Generar automáticamente la restricción FOREIGN KEY (...) REFERENCES ....
-  - Mostrar visualmente las relaciones en la vista de tablas (opcionalmente con un gráfico o diagrama ER sencillo).
-
-    5. Módulo de Gestión de Estructura Avanzada
-  - Objetivo: mejorar la edición de tablas ya existentes.
-  - Permitir renombrar columnas y cambiar sus tipos desde el interfaz.
-  - Añadir índices o claves únicas.
-  - Opción para duplicar una tabla (estructura + datos).
-  - Validación previa antes de aplicar cambios con ALTER TABLE.
-
-### A nivel técnico
-- Permitir que otros compañeros instalen la aplicación y administren su propia base de datos desde su entorno.  
-- Mejorar validaciones en formularios (tipos SQL, campos vacíos, mantener datos tras errores).  
-- Integrar logs de operaciones (registro de acciones para futuras funcionalidades).  
-
-### A nivel visual
-- Ajustar detalles de estilo (espaciado, botones, tipografía).  
-- Añadir navegación lateral o barra superior con secciones.  
-- Incluir información adicional para el administrador (uso, tiempo de sesión, actividad reciente).  
+## ✔️ Módulo SQL (Consultas manuales)
+- Ejecución de consultas SQL personalizadas.
+- Resultados formateados.
+- Gestión de errores SQL vía PDO.
+- Integración futura con consultas guardadas.
 
 ---
 
-## 🌱 Futuras Mejoras 
-- Tema oscuro / claro configurable por el usuario. *(Idea opcional inspirada en Severino)*
-## Ideas descartadas:
-- Autentificacion por roles, lo he hecho para que el usuario final sea el de un administrador
-- 
+## ✔️ Sistema de Logs (gestor_logs)
+Detecta si en el sistema hay una base de datos de logs, si no existe, hace al usuario crear una.
+Registra automáticamente:
+
+- Usuario autenticado  
+- Acción realizada  
+- Fecha y hora  
+- Base y tabla afectada    
+
+Incluye panel para visualizar logs.  
 
 ---
 
-## 📌 Notas
-Este README sirve como **documento vivo** del proyecto.  
-A medida que se implementen o modifiquen funcionalidades, se irá actualizando para reflejar el progreso y los cambios del sistema.
+## ✔️ Sistema de Copias de Seguridad (Backups)
+*(Implementación activa — finalizando detalles)*
+
+### Tipos de copia:
+- **Full (completa)**  
+- **Incremental** (En desarrollo) (Dudo de si es rentable, he de jugar con muchas variables, ademas de tener en cuenta cuales han sido los ultimso cambios para guardar la informacion nueva.
+- **Diferencial**  (En desarrollo) (Mas de lo mismo, un juego interminable tengo unos controllers y unos models, que parecen que van a hacer explotar a mi ordenador)
+
+### Funciones actuales:
+- Generación de backups `.sql` guardados en:
+  - `/backups/full/`
+  - `/backups/incremental/`
+  - `/backups/diferencial/`
+- Descarga directa mediante controlador.
+- Eliminación de copias.
+- Registro de fecha del último backup.(No tenía ni idea de como implementar las copias, he tenido que buscar información en otros lugares.)
+- **Aviso automático en Dashboard si han pasado más de 24h sin copia.**
 
 ---
+
+## ✔️ Dashboard avanzado
+Incluye:
+
+- Tarjetas de resumen:
+  - Numero de copias, tipo, etc..
+  - Tamaño de copias
+  - Última copia realizada
+  - Número de bases
+  - Tablas totales
+  - Registros estimados
+  - Tamaño total
+  - Tabla detallada con tamaño y registros.
+  - Botón de acceso rápido al módulo de bases.
+  - Estadísticas y tamaño total de backups.
+
+---
+
+# 🛠️ Arquitectura del Proyecto (MVC)
+- Rutas basadas en:
+  - index.php?controller=NombreController&action=metodo
+
+---
+
+# 🔄 En desarrollo actualmente
+- Finalización del módulo completo de restauración.
+- Ajustes finales del módulo de Vistas SQL guardadas.(Sigo atascado)
+- Optimización de detección de BDs internas. (No va mal, pero... creo que podría mejorarlo, no se como, pero tengo que pensarlo en profundidad)
+- Finalizar integración de edición avanzada de estructuras. (Considero que los formularios que tengo hechos... quizá no sean todo lo completos y funcionales que podrían ser, no se)
+- Actualización pendiente del Dashboard (bases internas). (Filtrar bases internas de mariadb)
+
+---
+
+# 🧠 Roadmap (Mejoras previstas)
+
+## 1️⃣ Sistema de Vistas / Consultas Guardadas
+Guardar consultas frecuentes en una tabla propia.
+
+## 2️⃣ Detección de Relaciones entre Tablas (Esto es una locura y creo que no lo voy a implementar)
+Mini-diagrama ER integrado.
+
+## 3️⃣ Editor avanzado de estructura (Un segundo formulario, pero, creo que perderían muchas de las tablas toda la logica para la que se usan, podría traer mas problemas que soluciones)
+- Renombrado de columnas  
+- Cambios de tipo  
+- Añadir índices  
+- Duplicar tablas  
+
+## 4️⃣ Backups avanzados (
+- Compresión ZIP  ( No es mala idea, si fuese completamente funcional, ahorrar espacio cuando haya bases de datos enormes sería todo un logro)
+- Programación automática  (Tengo pensado hacer siempre que se inicie el sistema gestor, que realice una copia de los logs)
+
+
+## 5️⃣ Tema oscuro / claro (opcional)
+
+---
+
+# 🚫 Funcionalidades descartadas
+- Sistema de roles → Solo administrador.
+- Multiusuario avanzado → Fuera del alcance del proyecto. (Considero que este programa puede instalarse en cualquier backend y acceder a él, necesita de credenciales para hacer la conexion a la base de datos, además de permisos privilegiados, con lo que multiusuarios sería un sin sentido)
+
+---
+
+# 📝 Notas finales
+Este README funciona como **documento vivo**, actualizado conforme evoluciona el proyecto y sus módulos internos.
+
+
