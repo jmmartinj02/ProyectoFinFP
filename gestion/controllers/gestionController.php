@@ -3,7 +3,6 @@ require_once __DIR__ . '/../db/Database.php';
 require_once __DIR__ . '/../Models/GestorModel.php';
 require_once __DIR__ . '/../Models/LogModel.php';
 require_once __DIR__ . '/../Vistas/View.php';
-
 class GestionController {
     private $model;
     private $log;
@@ -11,6 +10,7 @@ class GestionController {
     public function __construct() {
         $this->model = new GestorModel();
         $this->log = new LogModel();
+        
     }
 
     /** =======================================================
@@ -83,13 +83,22 @@ class GestionController {
         $resumen = $this->model->obtenerResumen();
         $graficos = $this->model->tablasPorBaseDeDatos();
         $detalle  = $this->model->detalleBasesDeDatos();
-
+      
         $this->registrarLog('ACCESO_DASHBOARD', 'Visualización del dashboard general');
+        //para introrucir en el dashboard el aviso de la copia de seguridad
+        require_once __DIR__ . '/../Models/BackupModel.php';
+        $backupModel = new BackupModel();
+        $lastBackup = $backupModel->getLastBackupDate();
+        $backupStats = $backupModel->estadisticas();
+
 
         View::show('dashboardView', [
             'resumen' => $resumen,
             'graficos' => $graficos,
-            'detalle' => $detalle
+            'detalle' => $detalle,
+            'lastBackup' => $lastBackup,
+            'backupStats' => $backupStats
+
         ]);
     }
 
@@ -370,92 +379,142 @@ class GestionController {
             'error' => $resultado['error']
         ]);
     }
-        /** =======================================================
-     *  VISTAS SQL
-     *  ======================================================= */
 
-    public function vistas() {
-        if (empty($_GET['db'])) {
-            View::show('errorView', ['mensaje' => 'No se especificó la base de datos.']);
-            return;
+    public function seleccionarBD() {
+        $bases = $this->model->listarBasesDeDatos();
+
+        // Si no hay ninguna base creada, redirigimos directamente al formulario de creación
+        if (empty($bases)) {
+            header("Location: index.php?controller=GestionController&action=crearBD");
+            exit;
         }
 
-        $db = $_GET['db'];
-        $vistas = $this->model->listarVistas($db);
+        // Si hay bases, mostramos la vista para seleccionar
+        View::show('seleccionarBDView', ['bases' => $bases]);
+    }
+    //segunda versión, el sistema daba fallo al no tener una base de datos donde hacer el post
+    //con lo cual, primero recuperamos con get, si está vacio, que lo busque en la sesion
+    //si aun asi sigue vacío, nos vamos a seleccionar base de datos para la vista,
+    //y guardamos siempre en la sesión la base de datos.
+public function vistas() {
 
-        $this->registrarLog('VER_VISTAS', "Visualización de vistas en '$db'");
-
-        View::show('vistasView', ['db' => $db, 'vistas' => $vistas]);
+    // Primero miramos la DB enviada por GET
+    if (!empty($_GET['db'])) {
+        $_SESSION['current_db'] = $_GET['db'];
     }
 
-    public function crearVista() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $db = $_POST['db'] ?? '';
-            $nombre = trim($_POST['nombre'] ?? '');
-            $consulta = trim($_POST['consulta'] ?? '');
+    // Si no viene por GET, usamos la de sesión
+    $db = $_SESSION['current_db'] ?? null;
 
-            if (empty($db) || empty($nombre) || empty($consulta)) {
-                View::show('errorView', ['mensaje' => 'Faltan datos para crear la vista.']);
-                return;
-            }
-
-            $resultado = $this->model->crearVista($db, $nombre, $consulta);
-
-            if ($resultado === true) {
-                $this->registrarLog('CREAR_VISTA', "Vista '$nombre' creada en '$db'");
-                View::show('mensajeView', [
-                    'mensaje' => "La vista <strong>$nombre</strong> se creó correctamente.",
-                    'enlace' => "index.php?controller=GestionController&action=vistas&db=" . urlencode($db)
-                ]);
-            } else {
-                View::show('errorView', ['mensaje' => "Error al crear la vista: $resultado"]);
-            }
-        } else {
-            $db = $_GET['db'] ?? '';
-            View::show('crearVistaView', ['db' => $db]);
-        }
+    // Si sigue sin haber DB → ir a seleccionarBD
+    if (!$db) {
+        header("Location: index.php?controller=GestionController&action=seleccionarBD");
+        exit;
     }
+
+    // Listar vistas
+    $vistas = $this->model->listarVistas($db);
+
+    View::show('vistasView', [
+        'db' => $db,
+        'vistas' => $vistas
+    ]);
+}
+
+
 
     public function verVista() {
-        if (empty($_GET['db']) || empty($_GET['view'])) {
-            View::show('errorView', ['mensaje' => 'Faltan parámetros.']);
+        $db = $_GET['db'] ?? null;
+        $vista = $_GET['vista'] ?? null;
+
+        if (!$db || !$vista) {
+            View::show('errorView', ['mensaje' => 'Faltan parámetros']);
             return;
         }
 
-        $db = $_GET['db'];
-        $view = $_GET['view'];
-        $registros = $this->model->obtenerVista($db, $view);
+        $detalles = $this->model->obtenerVista($db, $vista);
 
-        $this->registrarLog('VER_VISTA', "Visualización de vista '$view' (BD: $db)");
-
-        View::show('verVistaView', [
+        View::show('vistaDetalleView', [
             'db' => $db,
-            'view' => $view,
-            'registros' => $registros
+            'vista' => $vista,
+            'detalles' => $detalles
         ]);
     }
 
-    public function eliminarVista() {
-        if (!isset($_GET['db'], $_GET['view'])) {
-            View::show('errorView', ['mensaje' => 'Faltan parámetros para eliminar la vista.']);
+    public function crearVista() {
+    // obtener DB desde POST o sesión
+    $db = $_POST['db'] ?? ($_SESSION['current_db'] ?? null);
+
+    if (!$db) {
+        View::show('errorView', ['mensaje' => 'No hay base de datos seleccionada.']);
+        return;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $nombre = trim($_POST['nombre'] ?? '');
+        // aceptar tanto 'consulta' como 'sql' por si hay inconsistencia
+        $consulta = trim($_POST['consulta'] ?? $_POST['sql'] ?? '');
+
+        // validaciones básicas
+        if ($nombre === '' || $consulta === '') {
+            View::show('crearVistaView', [
+                'db' => $db,
+                'error' => 'Debes indicar nombre y la consulta SQL (SELECT).',
+                'nombre' => $nombre,
+                'sql' => $consulta
+            ]);
             return;
         }
 
-        $db = $_GET['db'];
-        $view = $_GET['view'];
+        // nombre válido (solo letras, números y guion bajo)
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $nombre)) {
+            View::show('crearVistaView', [
+                'db' => $db,
+                'error' => 'Nombre de vista no válido (usa solo letras, números y _).',
+                'nombre' => $nombre,
+                'sql' => $consulta
+            ]);
+            return;
+        }
 
-        $resultado = $this->model->eliminarVista($db, $view);
+        // llamar al modelo (se delega detección de CREATE/SELECT allí)
+        $resultado = $this->model->crearVista($db, $nombre, $consulta);
 
         if ($resultado === true) {
-            $this->registrarLog('ELIMINAR_VISTA', "Vista '$view' eliminada de '$db'");
-            View::show('mensajeView', [
-                'mensaje' => "Vista eliminada correctamente.",
-                'enlace' => "index.php?controller=GestionController&action=vistas&db=" . urlencode($db)
-            ]);
+            $this->registrarLog('CREAR_VISTA', "Vista '$nombre' creada en '$db'");
+            header("Location: index.php?controller=GestionController&action=vistas&db=" . urlencode($db));
+            exit;
         } else {
-            View::show('errorView', ['mensaje' => "Error al eliminar la vista: $resultado"]);
+            // $resultado puede contener message de error o string devuelto por el model
+            View::show('crearVistaView', [
+                'db' => $db,
+                'error' => $resultado,
+                'nombre' => $nombre,
+                'sql' => $consulta
+            ]);
+            return;
         }
     }
+
+    // GET -> mostrar formulario
+    View::show('crearVistaView', ['db' => $db]);
+}
+
+
+
+    public function eliminarVista() {
+        $db = $_GET['db'] ?? null;
+        $vista = $_GET['vista'] ?? null;
+
+        if ($db && $vista) {
+            $this->model->eliminarVista($db, $vista);
+        }
+
+        header("Location: index.php?controller=GestionController&action=vistas&db=$db");
+        exit;
+    }
+
+    
 
 }  
 

@@ -58,7 +58,113 @@
 </style>
 
 <div class="container mt-4 mb-5">
-  <h2 class="mb-4"><i class="bi bi-speedometer2"></i> Panel de Control</h2>
+    <h2 class="mb-4"><i class="bi bi-speedometer2"></i> Panel de Control</h2>
+    
+    <?php if (!empty($lastBackup)): 
+        $diffHours = (time() - strtotime($lastBackup)) / 3600;
+        if ($diffHours >= 24): ?>
+            <div class="alert alert-danger d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Han pasado más de <strong>24 horas</strong> desde la última copia de seguridad.<br>
+                Última copia: <strong><?= $lastBackup ?></strong>
+                <a href="index.php?controller=BackupController&action=generar" class="btn btn-warning btn-sm ms-3">
+                    Crear copia ahora
+                </a>
+            </div>
+        <?php else: ?>
+            <!-- Estado: Todo correcto -->
+            <div class="alert alert-success d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <div>
+                    <strong>✅ Estado de copias de seguridad: CORRECTO</strong><br>
+                    Última copia: <strong><?= $lastBackup ?></strong> 
+                    (hace <?= number_format($diffHours, 1) ?> horas)
+                    <?php if ($diffHours < 1): ?>
+                        - <span class="text-muted">Reciente</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (empty($lastBackup)): ?>
+        <div class="alert alert-danger d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            ¡Aún no se ha realizado ninguna copia de seguridad!
+            <a href="index.php?controller=BackupController&action=generar" class="btn btn-warning btn-sm ms-3">
+                Crear primera copia
+            </a>
+        </div>
+    <?php endif; ?>
+</div>
+<?php if (!empty($backupStats)): ?>
+<div class="chart-box mt-4">
+    <h5><i class="bi bi-hdd-stack"></i> Estado de copias de seguridad</h5>
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <div class="card-stat">
+                <i class="bi bi-archive text-primary"></i>
+                <h5><?= $backupStats['total'] ?></h5>
+                <p class="text-muted mb-0">Copias totales</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card-stat">
+                <i class="bi bi-hdd text-success"></i>
+                <h5><?= $backupStats['porTipo']['full'] ?></h5>
+                <p class="text-muted mb-0">Full</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card-stat">
+                <i class="bi bi-node-plus-fill text-warning"></i>
+                <h5><?= $backupStats['porTipo']['incremental'] ?></h5>
+                <p class="text-muted mb-0">Incremental</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card-stat">
+                <i class="bi bi-diagram-2 text-danger"></i>
+                <h5><?= $backupStats['porTipo']['diferencial'] ?></h5>
+                <p class="text-muted mb-0">Diferencial</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <p><strong>Tamaño total ocupado:</strong> <?= $backupStats['tamano'] ?> MB</p>
+    </div>
+
+    <h6 class="mt-4">Últimas 5 copias</h6>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Archivo</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Tamaño</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($backupStats['lista'] as $b): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($b['archivo']) ?></td>
+                        <td><?= ucfirst($b['tipo']) ?></td>
+                        <td><?= $b['fecha'] ?></td>
+                        <td><?= round($b['tamano'] / 1024 / 1024, 2) ?> MB</td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>
+
 
   <!-- Tarjetas resumen -->
   <div class="stats-cards">

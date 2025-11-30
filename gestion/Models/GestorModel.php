@@ -296,129 +296,179 @@ public function listarBasesDeDatos() {
 
     return $resp;
 }
-public function obtenerRegistroPorIdEdit($db, $table, $id) {
-    $conexion = (new Database($db))->getConnection();
-    $stmt = $conexion->prepare("SELECT * FROM `$table` WHERE id = :id");
-    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-public function actualizarRegistroEdit($db, $table, $id, $datos) {
-    $conexion = (new Database($db))->getConnection();
-
-    $setPartes = [];
-    foreach ($datos as $columna => $valor) {
-        $setPartes[] = "`$columna` = :$columna";
+    public function obtenerRegistroPorIdEdit($db, $table, $id) {
+        $conexion = (new Database($db))->getConnection();
+        $stmt = $conexion->prepare("SELECT * FROM `$table` WHERE id = :id");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    $sql = "UPDATE `$table` SET " . implode(',', $setPartes) . " WHERE id = :id";
-    $stmt = $conexion->prepare($sql);
+    public function actualizarRegistroEdit($db, $table, $id, $datos) {
+        $conexion = (new Database($db))->getConnection();
 
-    foreach ($datos as $columna => $valor) {
-        $stmt->bindValue(':' . $columna, $valor);
+        $setPartes = [];
+        foreach ($datos as $columna => $valor) {
+            $setPartes[] = "`$columna` = :$columna";
+        }
+
+        $sql = "UPDATE `$table` SET " . implode(',', $setPartes) . " WHERE id = :id";
+        $stmt = $conexion->prepare($sql);
+
+        foreach ($datos as $columna => $valor) {
+            $stmt->bindValue(':' . $columna, $valor);
+        }
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+        return $stmt->execute();
     }
-    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    //como no todas las tablas tiene un campo ID, ME HA DADO FALLO Y HE TENIDO QUE CAMBIARLO POR ESTO.
 
-    return $stmt->execute();
-}
-//como no todas las tablas tiene un campo ID, ME HA DADO FALLO Y HE TENIDO QUE CAMBIARLO POR ESTO.
-
-public function obtenerRegistroPorId($db, $table, $id) {
-    $conexion = (new Database($db))->getConnection();
-
-    // Detectar columnas de la tabla
-    $colsStmt = $conexion->query("SHOW COLUMNS FROM `$table`");
-    $columnas = $colsStmt->fetchAll(PDO::FETCH_COLUMN);
-
-    // Si la tabla tiene 'id', usamos ese campo; si no, el primero
-    $columnaClave = in_array('id', $columnas) ? 'id' : $columnas[0];
-
-    // Preparar la consulta dinámica
-    $sql = "SELECT * FROM `$table` WHERE `$columnaClave` = :valor";
-    $stmt = $conexion->prepare($sql);
-    $stmt->bindValue(':valor', $id);
-    $stmt->execute();
-
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-public function actualizarRegistro($db, $table, $id, $datos) {
-    $conexion = (new Database($db))->getConnection();
-
-    $setPartes = [];
-    foreach ($datos as $columna => $valor) {
-        $setPartes[] = "`$columna` = :$columna";
-    }
-
-    $sql = "UPDATE `$table` SET " . implode(',', $setPartes) . " WHERE id = :id";
-    $stmt = $conexion->prepare($sql);
-
-    foreach ($datos as $columna => $valor) {
-        $stmt->bindValue(':' . $columna, $valor);
-    }
-    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
-    return $stmt->execute();
-}
-public function eliminarRegistroPorId($db, $table, $id) {
-    try {
+    public function obtenerRegistroPorId($db, $table, $id) {
         $conexion = (new Database($db))->getConnection();
 
         // Detectar columnas de la tabla
         $colsStmt = $conexion->query("SHOW COLUMNS FROM `$table`");
         $columnas = $colsStmt->fetchAll(PDO::FETCH_COLUMN);
 
-        // Usar 'id' si existe, sino la primera columna
+        // Si la tabla tiene 'id', usamos ese campo; si no, el primero
         $columnaClave = in_array('id', $columnas) ? 'id' : $columnas[0];
 
-        $sql = "DELETE FROM `$table` WHERE `$columnaClave` = :valor LIMIT 1";
+        // Preparar la consulta dinámica
+        $sql = "SELECT * FROM `$table` WHERE `$columnaClave` = :valor";
         $stmt = $conexion->prepare($sql);
         $stmt->bindValue(':valor', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizarRegistro($db, $table, $id, $datos) {
+        $conexion = (new Database($db))->getConnection();
+
+        $setPartes = [];
+        foreach ($datos as $columna => $valor) {
+            $setPartes[] = "`$columna` = :$columna";
+        }
+
+        $sql = "UPDATE `$table` SET " . implode(',', $setPartes) . " WHERE id = :id";
+        $stmt = $conexion->prepare($sql);
+
+        foreach ($datos as $columna => $valor) {
+            $stmt->bindValue(':' . $columna, $valor);
+        }
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
         return $stmt->execute();
-    } catch (PDOException $e) {
-        return false;
     }
-}
-// ==================== VISTAS SQL ====================
+    public function eliminarRegistroPorId($db, $table, $id) {
+        try {
+            $conexion = (new Database($db))->getConnection();
 
-public function listarVistas($db) {
-    try {
-        $stmt = $this->db->query("SHOW FULL TABLES IN `$db` WHERE Table_Type = 'VIEW'");
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
-    } catch (PDOException $e) {
-        return [];
+            // Detectar columnas de la tabla
+            $colsStmt = $conexion->query("SHOW COLUMNS FROM `$table`");
+            $columnas = $colsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            // Usar 'id' si existe, sino la primera columna
+            $columnaClave = in_array('id', $columnas) ? 'id' : $columnas[0];
+
+            $sql = "DELETE FROM `$table` WHERE `$columnaClave` = :valor LIMIT 1";
+            $stmt = $conexion->prepare($sql);
+            $stmt->bindValue(':valor', $id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
     }
-}
+    // ==========================
+    //   GESTIÓN DE VISTAS SQL
+    // ==========================
 
-public function crearVista($db, $nombre, $consultaSQL) {
+    /**
+     * Lista todas las vistas de una base de datos.
+     */
+    public function listarVistas($dbName) {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT TABLE_NAME AS vista
+                FROM INFORMATION_SCHEMA.VIEWS
+                WHERE TABLE_SCHEMA = :db
+            ");
+            $stmt->execute([':db' => $dbName]);
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene la definición SQL de una vista (SHOW CREATE VIEW).
+     */
+    public function obtenerVista($dbName, $vista) {
+        try {
+            $stmt = $this->db->query("SHOW CREATE VIEW `$dbName`.`$vista`");
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Crea una nueva vista SQL.
+     */
+public function crearVista($dbName, $nombreVista, $consultaSQL) {
     try {
-        $sql = "CREATE OR REPLACE VIEW `$db`.`$nombre` AS $consultaSQL";
-        $this->db->exec($sql);
+        // Normalizar: quitar ; final y espacios
+        $consultaSQL = rtrim($consultaSQL, " \t\n\r;");
+
+        if ($consultaSQL === '') {
+            return "Consulta vacía.";
+        }
+
+        // Si el usuario pegó una sentencia completa CREATE ..., la ejecutamos tal cual.
+        if (preg_match('/^\s*CREATE\s+/i', $consultaSQL)) {
+            $sqlFinal = $consultaSQL;
+        } else {
+            // Si solo puso SELECT..., construimos la sentencia CREATE OR REPLACE VIEW
+            // validar que empiece por SELECT (o por WITH SELECT etc)
+            if (!preg_match('/^\s*(SELECT|WITH)\s+/i', $consultaSQL)) {
+                return "La consulta debe comenzar por SELECT (o incluir una sentencia CREATE VIEW completa).";
+            }
+
+            // Escapar identificadores básicos para seguridad (backticks)
+            $dbEsc = str_replace('`', '``', $dbName);
+            $viewEsc = str_replace('`', '``', $nombreVista);
+
+            $sqlFinal = "CREATE OR REPLACE VIEW `{$dbEsc}`.`{$viewEsc}` AS {$consultaSQL}";
+        }
+
+        // DEBUG: registrar / devolver el SQL si falla (temporal)
+        // ejecutar
+        $res = $dbName->exec($sqlFinal);
+
+        if ($res === false) {
+            // obtener info del error PDO
+            $err = $this->db->errorInfo();
+            return "Error al crear vista: " . ($err[2] ?? 'Desconocido') . " — SQL: " . $sqlFinal;
+        }
+
         return true;
     } catch (PDOException $e) {
-        return $e->getMessage();
+        return "Error: " . $e->getMessage() . " — SQL: " . ($sqlFinal ?? '[no definido]');
     }
 }
 
-public function eliminarVista($db, $nombre) {
-    try {
-        $sql = "DROP VIEW IF EXISTS `$db`.`$nombre`";
-        $this->db->exec($sql);
-        return true;
-    } catch (PDOException $e) {
-        return $e->getMessage();
-    }
-}
 
-public function obtenerVista($db, $nombre, $limit = 100) {
-    try {
-        $stmt = $this->db->query("SELECT * FROM `$db`.`$nombre` LIMIT $limit");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        return [];
+    /**
+     * Elimina una vista.
+     */
+    public function eliminarVista($dbName, $nombreVista) {
+        try {
+            return $this->db->exec("DROP VIEW IF EXISTS `$dbName`.`$nombreVista`") !== false;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
-}
 
 
 

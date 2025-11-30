@@ -74,7 +74,7 @@
       <li class="nav-item">
         <a class="nav-link<?= (($_GET['action'] ?? '') === 'vistas') ? ' active' : '' ?>" 
           href="index.php?controller=GestionController&action=vistas">
-          <i class="bi bi-eye"></i> Vistas SQL
+          <i class="bi bi-collection"></i> Vistas SQL
         </a>
       </li>
       <li class="nav-item">
@@ -83,12 +83,14 @@
           <i class="bi bi-plus-circle"></i> Crear BD
         </a>
       </li>
-     <!-- <li class="nav-item">
-        <a class="nav-link<?= (($_GET['action'] ?? '') === 'crearTabla') ? ' active' : '' ?>" 
-           href="index.php?controller=GestionController&action=crearTabla">
-          <i class="bi bi-grid-1x2"></i> Crear tabla
+      <li class="nav-item">
+        <a class="nav-link" href="index.php?controller=BackupController&action=index">
+          <i class="bi bi-hdd-stack"></i> Copias de Seguridad
         </a>
-      </li> -->
+      </li>
+
+
+
     </ul>
     <a href="index.php?controller=LoginController&action=logout" class="btn btn-outline-light">
       <i class="bi bi-box-arrow-right"></i> Salir
