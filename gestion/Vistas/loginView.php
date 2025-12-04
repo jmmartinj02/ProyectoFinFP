@@ -58,10 +58,6 @@ label {
       <label class="form-label">Contraseña</label>
       <input type="password" class="form-control" name="pass">
     </div>
-    <div class="mb-3">
-      <label class="form-label">Base de datos</label>
-      <input type="text" class="form-control" name="db" placeholder="(opcional)">
-    </div>
     <button class="btn btn-primary w-100 mt-2">Conectar</button>
   </form>
 </div>

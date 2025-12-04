@@ -1,35 +1,45 @@
 <?php include __DIR__ . '/../includes/header.php'; ?>
 
 <div class="container mt-4">
-  <h2><i class="bi bi-folder2-open"></i> Copias de seguridad disponibles</h2>
 
-  <?php if (empty($files['full']) && empty($files['incremental']) && empty($files['diferencial'])): ?>
-      <div class="alert alert-warning">No hay copias disponibles.</div>
-  <?php endif; ?>
+  <h2><i class="bi bi-folder2-open"></i> Copias disponibles</h2>
 
   <?php foreach ($files as $tipo => $lista): ?>
-      <h4 class="mt-3 text-capitalize"><?= $tipo ?></h4>
-      <ul class="list-group">
-      <?php foreach ($lista as $file): ?>
-          <li class="list-group-item d-flex justify-content-between">
-              <?= basename($file) ?>
-              <div>
-                    <a class="btn btn-sm btn-success"
-                    href="index.php?controller=BackupController&action=descargar&tipo=<?= $tipo ?>&file=<?= basename($file) ?>">
-                    Descargar
-                    </a>
+    
+    <h4 class="mt-4 text-capitalize"><?= $tipo ?></h4>
+    
+    <!-- Mostrar aviso solo para Incremental y Diferencial -->
+    <?php if ($tipo == "incremental" || $tipo == "diferencial"): ?>
+      <p class="text-muted"><small><i class="bi bi-exclamation-triangle"></i> Nota: Esta función está en desarrollo, las copias realizadas contienen un no operacional.</small></p>
+    <?php endif; ?>
+    
+    <ul class="list-group">
 
-                    <a class="btn btn-sm btn-danger"
-                    href="index.php?controller=BackupController&action=eliminar&tipo=<?= $tipo ?>&file=<?= basename($file) ?>"
-                    onclick="return confirm('¿Seguro que deseas eliminar este backup?');">
-                    Eliminar
-                    </a>
+      <?php foreach ($lista as $path): ?>
+        <?php $file = basename($path); ?>
 
-              </div>
-          </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span><?= $file ?></span>
+
+          <div>
+            <a class="btn btn-success btn-sm"
+              href="index.php?controller=BackupController&action=descargar&file=<?= urlencode($file) ?>">
+              Descargar
+            </a>
+
+            <a class="btn btn-danger btn-sm"
+              href="index.php?controller=BackupController&action=eliminar&file=<?= urlencode($file) ?>"
+              onclick="return confirm('¿Eliminar esta copia?')">
+              Eliminar
+            </a>
+          </div>
+        </li>
       <?php endforeach; ?>
-      </ul>
+
+    </ul>
+
   <?php endforeach; ?>
+
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -12,31 +12,49 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">
       <i class="bi bi-database"></i>
-      <?= !empty($registros) ? 'Registros en ' . htmlspecialchars($table) : 'Tablas en ' . htmlspecialchars($dbName) ?>
+      <?php if (!empty($registros)): ?>
+        Registros en <?= htmlspecialchars($table) ?>
+      <?php elseif (!empty($table) && empty($registros)): ?>
+        Tabla <?= htmlspecialchars($table) ?> (vacía)
+      <?php else: ?>
+        Tablas en <?= htmlspecialchars($dbName) ?>
+      <?php endif; ?>
     </h3>
 
-    <?php if (!empty($tablas) && empty($registros)): ?>
-      <!-- Botón para crear nueva tabla -->
+    <!-- BOTONES CONTEXTUALES CORREGIDOS -->
+    <?php if (empty($table)): ?>
+      <!-- Estamos viendo la lista de tablas (con o sin tablas) -->
       <a href="index.php?controller=GestionController&action=formCrearTabla&db=<?= urlencode($dbName) ?>" 
          class="btn btn-success btn-sm">
         <i class="bi bi-plus-circle"></i> Crear nueva tabla
       </a>
-
-    <?php elseif (!empty($registros)): ?>
-      <!-- Botón para añadir nuevo registro -->
+    <?php elseif (!empty($table) && !empty($registros)): ?>
+      <!-- Estamos viendo registros (hay registros) -->
       <a href="index.php?controller=GestionController&action=formInsertarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
          class="btn btn-success btn-sm">
         <i class="bi bi-plus-circle"></i> Insertar nuevo registro
+      </a>
+    <?php elseif (!empty($table) && empty($registros)): ?>
+      <!-- Estamos viendo una tabla vacía (no hay registros) -->
+      <a href="index.php?controller=GestionController&action=formInsertarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
+         class="btn btn-success btn-sm">
+        <i class="bi bi-plus-circle"></i> Insertar primer registro
       </a>
     <?php endif; ?>
   </div>
 
   <p class="text-muted mb-4">
-    Selecciona una tabla para ver su contenido o gestiona su estructura.
+    <?php if (empty($table)): ?>
+      Selecciona una tabla para ver su contenido o gestiona su estructura.
+    <?php elseif (!empty($registros)): ?>
+      Mostrando <?= count($registros) ?> registro(s) en esta tabla.
+    <?php else: ?>
+      Esta tabla está vacía. Puedes insertar el primer registro.
+    <?php endif; ?>
   </p>
 
-  <!-- Listado de tablas -->
-  <?php if (!empty($tablas)): ?>
+  <!-- Listado de tablas (solo se muestra cuando NO estamos viendo registros específicos) -->
+  <?php if (empty($table) && !empty($tablas)): ?>
     <div class="list-group mb-4 shadow-sm rounded">
       <?php foreach ($tablas as $t): ?>
         <div class="list-group-item d-flex justify-content-between align-items-center py-3">
@@ -58,7 +76,8 @@
     </div>
   <?php endif; ?>
 
-  <?php if (empty($tablas) && empty($registros)): ?>
+  <!-- Mensaje cuando no hay tablas -->
+  <?php if (empty($table) && empty($tablas)): ?>
     <div class="alert alert-warning">
       <i class="bi bi-exclamation-triangle"></i>
       No se encontraron tablas en esta base de datos.
@@ -88,36 +107,41 @@
                 <td><?= htmlspecialchars($valor) ?></td>
               <?php endforeach; ?>
 
-                  <td class="text-center">
-                  <?php
-                    // Detectar clave (id o primera columna disponible)
-                    $claveColumna = array_key_first($fila);
-                    $claveValor = $fila[$claveColumna] ?? null;
-                  ?>
+              <td class="text-center">
+                <?php
+                  // Detectar clave (id o primera columna disponible)
+                  $claveColumna = array_key_first($fila);
+                  $claveValor = $fila[$claveColumna] ?? null;
+                ?>
 
-              <?php if ($claveValor !== null): ?>
-                <div class="d-flex justify-content-center gap-2">
-                  <!-- Botón Editar -->
-                  <a href="index.php?controller=GestionController&action=editarRegistroEdit&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
-                    class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-pencil"></i> Editar
-                  </a>
+                <?php if ($claveValor !== null): ?>
+                  <div class="d-flex justify-content-center gap-2">
+                    <!-- Botón Editar -->
+                    <a href="index.php?controller=GestionController&action=editarRegistroEdit&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
+                      class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-pencil"></i> Editar
+                    </a>
 
-                  <!-- Botón Eliminar (confirmación de registro individual) -->
-                  <a href="index.php?controller=GestionController&action=eliminarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
-                    class="btn btn-sm btn-outline-danger">
-                    <i class="bi bi-trash"></i> Eliminar
-                  </a>
-                </div>
-              <?php else: ?>
-                <span class="text-muted small">Sin clave</span>
-              <?php endif; ?>
-            </td>
-
+                    <!-- Botón Eliminar -->
+                    <a href="index.php?controller=GestionController&action=eliminarRegistro&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>&id=<?= urlencode($claveValor) ?>" 
+                      class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i> Eliminar
+                    </a>
+                  </div>
+                <?php else: ?>
+                  <span class="text-muted small">Sin clave</span>
+                <?php endif; ?>
+              </td>
             </tr>
           <?php endforeach; ?>
         </tbody>
       </table>
+    </div>
+  <?php elseif (!empty($table) && empty($registros)): ?>
+    <!-- Mensaje para tabla vacía -->
+    <div class="alert alert-info mt-4">
+      <i class="bi bi-info-circle"></i>
+      La tabla <strong><?= htmlspecialchars($table) ?></strong> no contiene registros.
     </div>
   <?php endif; ?>
 

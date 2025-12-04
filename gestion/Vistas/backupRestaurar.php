@@ -5,32 +5,48 @@
   <h2><i class="bi bi-arrow-counterclockwise"></i> Restaurar copia</h2>
 
   <?php if (!empty($error)): ?>
-      <div class="alert alert-danger"><?= $error ?></div>
+      <div class="alert alert-danger mt-3"><?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
 
-  <?php if (!empty($mensaje)): ?>
-      <div class="alert alert-success"><?= $mensaje ?></div>
-  <?php endif; ?>
+  <form method="POST">
 
-  <form method="POST" action="index.php?controller=BackupController&action=restaurar">
+    <div class="mb-3">
+      <label class="form-label">Selecciona copia</label>
+      <select name="file" class="form-select" required>
+        <option value="">-- seleccionar --</option>
+        <?php foreach ($files as $path): ?>
+          <option value="<?= basename($path) ?>"><?= basename($path) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
 
-      <div class="mb-3">
-          <label class="form-label fw-semibold">Selecciona archivo</label>
-          <select class="form-select" name="file" required>
-              <?php foreach ($files as $f): ?>
-                  <option value="<?= $f ?>"><?= basename($f) ?></option>
-              <?php endforeach; ?>
-          </select>
-      </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="autoCreate" name="autoCreate" value="1">
+      <label class="form-check-label" for="autoCreate">
+        Crear base de datos automáticamente según el nombre del archivo
+      </label>
+    </div>
 
-      <div class="mb-3">
-          <label class="form-label">Base de datos destino</label>
-          <input type="text" class="form-control" name="db" required>
-      </div>
+    <div id="manualDB" class="mb-3">
+      <label class="form-label">Base de datos destino</label>
+      <select name="db" class="form-select">
+        <option value="">-- elegir --</option>
+        <?php foreach ($bases as $b): ?>
+          <option value="<?= $b ?>"><?= $b ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
 
-      <button class="btn btn-warning">Restaurar</button>
+    <button class="btn btn-warning">Restaurar</button>
+
   </form>
 
 </div>
+
+<script>
+document.getElementById('autoCreate').addEventListener('change', function() {
+    document.getElementById('manualDB').style.display = this.checked ? 'none' : 'block';
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

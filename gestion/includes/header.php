@@ -72,11 +72,11 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link<?= (($_GET['action'] ?? '') === 'vistas') ? ' active' : '' ?>" 
-          href="index.php?controller=GestionController&action=vistas">
-          <i class="bi bi-collection"></i> Vistas SQL
+        <a class="nav-link" href="index.php?controller=VistasController&action=index">
+            <i class="bi bi-collection"></i> Vistas
         </a>
       </li>
+
       <li class="nav-item">
         <a class="nav-link<?= (($_GET['action'] ?? '') === 'crearBD') ? ' active' : '' ?>" 
            href="index.php?controller=GestionController&action=crearBD">
