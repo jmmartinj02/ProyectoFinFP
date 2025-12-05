@@ -12,6 +12,7 @@
         if (strpos($col['Extra'], 'auto_increment') !== false) continue;
       ?>
       <div class="mb-3">
+        
         <label for="<?= htmlspecialchars($col['Field']) ?>" class="form-label">
           <?= htmlspecialchars($col['Field']) ?> (<?= htmlspecialchars($col['Type']) ?>)
         </label>
@@ -24,8 +25,7 @@
     <?php endforeach; ?>
 
     <button type="submit" class="btn btn-primary">Guardar registro</button>
-    <a href="index.php?controller=GestionController
-    &action=ver&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
+    <a href="index.php?controller=GestionController&action=ver&db=<?= urlencode($dbName) ?>&table=<?= urlencode($table) ?>" 
        class="btn btn-outline-secondary">Cancelar</a>
   </form>
 </div>

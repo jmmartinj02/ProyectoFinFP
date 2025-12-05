@@ -59,12 +59,15 @@ class VistasModel {
             !in_array($b, ['information_schema','mysql','performance_schema','sys'])
         );
     }
+    //usando un array asociativo, recibe ID 
+    // y obtiene una vista concreta desde la base de datos `vistas`.
     public function getVista($id) {
     $stmt = $this->pdo->prepare("SELECT * FROM vista WHERE id = :id");
     $stmt->execute([":id" => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
-
+// actualiza los datos de una vista existente.
+// recibe todos los campos editables y ejecuta un UPDATE en la tabla `vista`.
 public function actualizarVista($id, $nombre, $descripcion, $sql, $db) {
     $stmt = $this->pdo->prepare("
         UPDATE vista
@@ -80,12 +83,14 @@ public function actualizarVista($id, $nombre, $descripcion, $sql, $db) {
         ":id" => $id
     ]);
 }
-
+// elimina una vista guardada de la tabla vista usando el ID.
     public function eliminarVista($id) {
         $stmt = $this->pdo->prepare("DELETE FROM vista WHERE id = :id");
         return $stmt->execute([":id" => $id]);
     }
-
+// ejecuta la consulta SQL almacenada dentro de una vista.
+// conecta automáticamente a la base de datos indicada en el campo 'db'.
+// devuelve el resultado como array o un mensaje de error en caso de fallo.
     public function ejecutarVista($vista) {
         $pdo = (new Database($vista['db']))->getConnection();
         $sql = $vista["sql_text"];

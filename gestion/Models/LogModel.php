@@ -5,10 +5,12 @@ class LogModel {
 
     private $pdo = null;
     private $logDb = null;
-
+    //Detecta automáticamente si existe una base de datos que termine en "_logs".
+    //Solo inicia el sistema de logs si hay credenciales válidas en sesión.
+    //Si encuentra una BD de logs, abre una conexión con ella.
     public function __construct() {
 
-        // 1. Tomar credenciales activas desde la sesión
+                // usa la sesion, si no hay conexión no trabaja con ellos
         if (!isset($_SESSION['conexion'])) {
             return; // No hay conexión activa aún (evita errores)
         }
@@ -17,7 +19,7 @@ class LogModel {
         $user = $_SESSION['conexion']['user'];
         $pass = $_SESSION['conexion']['pass'];
 
-        // 2. Conexión temporal para buscar BD *_logs
+        //conexion temporal para para buscar BD *_logs, hace falta para la automatización
         try {
             $pdoTemp = new PDO("mysql:host={$host}", $user, $pass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
@@ -29,7 +31,7 @@ class LogModel {
             return;
         }
 
-        // 3. Buscar BD que termine en "_logs"
+        // busca BD cuyo nombre termine en "_logs"
         foreach ($bases as $b) {
             if (str_ends_with($b, "_logs")) {
                 $this->logDb = $b;
@@ -38,11 +40,11 @@ class LogModel {
         }
 
         if (!$this->logDb) {
-            // No existe BD de logs → no es un error crítico
+            // si noe existte simplemente no se logueará a nada.
             return;
         }
 
-        // 4. Conectar a la base de datos de logs real
+        // ahora si, se conecta a la base de datos de logs real usando logDb
         try {
             $db = new Database($this->logDb);
             $this->pdo = $db->getConnection();
@@ -52,9 +54,9 @@ class LogModel {
         }
     }
 
-    /**
-     * Registrar una acción en logs
-     */
+    //registrea accion en el log, se utilza mucho en todas las funciones que realizan
+    //cambios o simplemente visualizaciones.
+    // hace un statement sobre la base de datos de logs con la informacion de usuari
     public function registrar($usuario, $accion, $detalle = null) {
         if (!$this->pdo) {
             return false; // no hay sistema de logs disponible
@@ -77,9 +79,9 @@ class LogModel {
         }
     }
 
-    /**
-     * Obtener los últimos N logs
-     */
+    //Obtiene como maximo los 10 ultimos logs,(esto es para el dashboard)
+    //si ocurre un fallo, no peta, simplemente devuelve un array vacío para
+    //no mostrar lienas de error en el dashboard, solo se vería en blanco
     public function getLastLogs($limit = 10) {
         if (!$this->pdo) return [];
 

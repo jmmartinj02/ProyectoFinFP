@@ -343,24 +343,7 @@ public function listarBasesDeDatos() {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function actualizarRegistro($db, $table, $id, $datos) {
-        $conexion = (new Database($db))->getConnection();
 
-        $setPartes = [];
-        foreach ($datos as $columna => $valor) {
-            $setPartes[] = "`$columna` = :$columna";
-        }
-
-        $sql = "UPDATE `$table` SET " . implode(',', $setPartes) . " WHERE id = :id";
-        $stmt = $conexion->prepare($sql);
-
-        foreach ($datos as $columna => $valor) {
-            $stmt->bindValue(':' . $columna, $valor);
-        }
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
-        return $stmt->execute();
-    }
     public function eliminarRegistroPorId($db, $table, $id) {
         try {
             $conexion = (new Database($db))->getConnection();

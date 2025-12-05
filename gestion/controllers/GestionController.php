@@ -14,9 +14,7 @@ class GestionController {
         
     }
 
-    /** =======================================================
-     *  MÉTODO AUXILIAR PARA REGISTRAR LOGS
-     *  ======================================================= */
+    //Carga el model del sistema y el de logs, para autodetectar *_logs
     private function registrarLog($accion, $descripcion) {
         if (isset($this->log)) {
             $usuario = $_SESSION['usuario']['nombre'] ?? 'sistema';
@@ -24,9 +22,9 @@ class GestionController {
         }
     }
 
-    /** =======================================================
-     *  INICIO / HOME
-     *  ======================================================= */
+     //pagina principal del panel, si no existe la base de datos de logs, obliga a crearla
+     //muestra un listado de bases de datos.
+
     public function inicio() {
         if (empty($_SESSION['log_db'])) {
             header("Location: index.php?controller=LogsController&action=configurar");
@@ -38,9 +36,8 @@ class GestionController {
         View::show('homeView', ['databases' => $databases]);
     }
 
-    /** =======================================================
-     *  LISTADO DE TABLAS
-     *  ======================================================= */
+    ///////////listado tablas///////////////
+    //requeire un get con el dato especifico, para listar las tablas de dicho parametro(db)
     public function tablas() {
         if (empty($_GET['db'])) {
             View::show('errorView', ['mensaje' => 'No se especificó la base de datos.']);
@@ -55,9 +52,8 @@ class GestionController {
         View::show('tablasView', ['dbName' => $dbName, 'tablas' => $tablas]);
     }
 
-    /** =======================================================
-     *  VER REGISTROS DE UNA TABLA
-     *  ======================================================= */
+    ////////////////ver registro de tabla////////////////
+    //necesita del parametro db y table para poder ver los registros de la tabla de dicha base de datos
     public function ver() {
         if (!isset($_GET['db'], $_GET['table'])) {
             View::show('errorView', ['mensaje' => 'Faltan parámetros.']);
@@ -77,9 +73,9 @@ class GestionController {
         ]);
     }
 
-    /** =======================================================
-     *  DASHBOARD
-     *  ======================================================= */
+    //////////////dashboard///////////////
+    //lo que puede verse en el dashboard
+    //resumen general, graficos, detalles de bases, copias y los logs rec.
     public function dashboard() {
         $resumen = $this->model->obtenerResumen();
         $graficos = $this->model->tablasPorBaseDeDatos();
@@ -106,15 +102,14 @@ class GestionController {
 
         ]);
     }
-
-    /** =======================================================
-     *  BASES DE DATOS
-     *  ======================================================= */
+    /////////////base de datos/////////////////////
+    //metodo de acceso a la vista del formulario de creacion de BD
     public function crearBD() {
         $this->registrarLog('ACCESO_CREAR_BD', 'Acceso al formulario de creación de base de datos');
         View::show('crearBDView');
     }
-
+///////////////procesamiento de creacion base de datos//////////////
+    //valido nombre, y ejecuta la creacion llamando a la funcion crearBaseDeDatos del gestionmodel
     public function procesarCrearBD() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['db'])) {
             $db = trim($_POST['db']);
@@ -135,7 +130,7 @@ class GestionController {
             View::show('crearBDView', ['error' => 'Debes indicar un nombre de base de datos.']);
         }
     }
-
+    //confirmacion de eliminacion de BD
     public function confirmarEliminarBD() {
         if (empty($_GET['db'])) {
             View::show('errorView', ['mensaje' => 'No se especificó la base de datos a eliminar.']);
@@ -143,7 +138,7 @@ class GestionController {
         }
         View::show('confirmarEliminarBDView', ['db' => $_GET['db']]);
     }
-
+    //elimina definitivamente la base de datos
     public function eliminarBD() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['db'])) {
             $db = trim($_POST['db']);
@@ -160,9 +155,8 @@ class GestionController {
         }
     }
 
-    /** =======================================================
-     *  TABLAS
-     *  ======================================================= */
+///////////////////////tablas/////////////////////////
+    //formulario de creacion de tabla, le pasa el valor db, para hacer el stmtn
     public function formCrearTabla() {
         $db = $_GET['db'] ?? '';
         if (empty($db)) {
@@ -171,7 +165,7 @@ class GestionController {
         }
         View::show('crearTablaView', ['db' => $db]);
     }
-
+    //funcion que usa los datos del formulario y los pasa al modelo crearTabla
     public function crearTabla() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db = $_POST['db'] ?? '';
@@ -195,7 +189,7 @@ class GestionController {
             }
         }
     }
-
+    //simplemente confirmacion de borrado de tabla
     public function confirmarEliminarTabla() {
         $db = $_GET['db'] ?? '';
         $tabla = $_GET['table'] ?? '';
@@ -206,17 +200,19 @@ class GestionController {
 
         View::show('confirmarEliminarTablaView', ['db' => $db, 'tabla' => $tabla]);
     }
-
+    //usa el model eliminartabla para eliminar definitivamente la tabla con los datos pasados(db,tabla)
     public function eliminarTabla() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db = $_POST['db'] ?? '';
             $tabla = $_POST['tabla'] ?? '';
+            //si está vacío, da un error de falta de datos
             if (empty($db) || empty($tabla)) {
                 View::show('errorView', ['mensaje' => 'Faltan datos.']);
                 return;
             }
 
             $resultado = $this->model->eliminarTabla($db, $tabla);
+            //si ha devuelto un true, se guarda en el log la accion y da un mensaje de confiramcion
             if ($resultado === true) {
                 $this->registrarLog('ELIMINAR_TABLA', "Tabla '$tabla' eliminada en '$db'");
                 View::show('mensajeView', [
@@ -228,10 +224,8 @@ class GestionController {
             }
         }
     }
-
-    /** =======================================================
-     *  REGISTROS
-     *  ======================================================= */
+/////////////////////registros////////////////////////////
+    //formulario de inserccion de registros, necesita de db y table para que funcione
     public function formInsertarRegistro() {
         $dbName = $_GET['db'] ?? '';
         $table = $_GET['table'] ?? '';
@@ -241,7 +235,9 @@ class GestionController {
 
         include __DIR__ . '/../Vistas/formInsertarRegistro.php';
     }
-
+    //funcion que introduce un registro en una tabla, usa db y table
+    //usa la funcion obtenercolumnas para poder hacer un for
+    //
     public function insertarRegistro() {
         $dbName = $_GET['db'] ?? '';
         $table = $_GET['table'] ?? '';
@@ -251,7 +247,7 @@ class GestionController {
 
         $campos = [];
         $valores = [];
-
+////////////////////////
         foreach ($columnas as $col) {
             if (strpos($col['Extra'], 'auto_increment') !== false) continue;
             $campo = $col['Field'];
@@ -268,7 +264,8 @@ class GestionController {
         header("Location: index.php?controller=GestionController&action=ver&db=$dbName&table=$table");
         exit;
     }
-
+    //psra el formulario de edicion de registro
+    //utiliza el id del registro, 
     public function editarRegistroEdit() {
         if (!isset($_GET['db'], $_GET['table'], $_GET['id'])) {
             View::show('errorView', ['mensaje' => 'Faltan parámetros.']);
@@ -291,7 +288,8 @@ class GestionController {
             'columnas' => $columnas
         ]);
     }
-
+    //aquí usa los datos del formulario para llamar al model actualizarRegistrosEdit
+    //y hacer el cambio en la base  de datos
     public function actualizarRegistroEdit() {
         if (!isset($_POST['db'], $_POST['table'], $_POST['id'])) {
             View::show('errorView', ['mensaje' => 'Datos incompletos.']);
@@ -305,18 +303,19 @@ class GestionController {
         unset($datos['db'], $datos['table'], $datos['id']);
 
         $resultado = $this->model->actualizarRegistroEdit($db, $table, $id, $datos);
-
+        //si ha ido bien, actualiza y mensaje, junto con el registro de logs
         if ($resultado) {
             $this->registrarLog('ACTUALIZAR_REGISTRO', "Registro #$id actualizado en '$table'");
             View::show('mensajeView', [
                 'mensaje' => "Registro actualizado correctamente.",
                 'volver' => "index.php?controller=GestionController&action=ver&db=$db&table=$table"
             ]);
+            //si no... error
         } else {
             View::show('errorView', ['mensaje' => 'Error al actualizar el registro.']);
         }
     }
-
+        //elimina un registro usando el ID, necesita de db, table e id(identifica la linea)
     public function eliminarRegistro() {
         if (!isset($_GET['db'], $_GET['table'], $_GET['id'])) {
             View::show('errorView', ['mensaje' => 'Faltan parámetros.']);
@@ -328,6 +327,7 @@ class GestionController {
         $id = $_GET['id'];
 
         $resultado = $this->model->eliminarRegistroPorId($db, $table, $id);
+        //si va bien actualiza log y muestra mensaje
         if ($resultado) {
             $this->registrarLog('ELIMINAR_REGISTRO', "Registro #$id eliminado de '$table' (BD: $db)");
             View::show('mensajeView', [
@@ -338,30 +338,28 @@ class GestionController {
             View::show('errorView', ['mensaje' => 'Error al eliminar el registro.']);
         }
     }
-
-    /** =======================================================
-     *  CONSULTAS SQL MANUALES
-     *  ======================================================= */
+/////////////////////consultas sql//////////////////////////
+    //invoca la vista de consultas SQL
     public function consultas() {
         $bases = $this->model->obtenerBasesDeDatos();
         $dbActual = $_SESSION['conexion']['db'] ?? '';
 
         View::show('consultasView', ['bases' => $bases, 'dbActual' => $dbActual]);
     }
-
+    //esta funcion se encarga de ejecutar la consultaSQL
     public function ejecutarConsulta() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             View::show('errorView', ['mensaje' => 'Petición no válida.']);
             return;
         }
-
+        /////////////////7
         if (!empty($_POST['base'])) {
             $_SESSION['conexion']['db'] = $_POST['base'];
         }
 
         $sql = trim($_POST['sql'] ?? '');
         $limit = intval($_POST['limit'] ?? 100);
-
+        //si no hay nada en $sql mostrará error
         if ($sql === '') {
             View::show('consultasView', [
                 'error' => 'Introduce una consulta SQL.',
@@ -370,7 +368,8 @@ class GestionController {
             ]);
             return;
         }
-
+        //si todo va bien, sql contiene algo, y usando limite, envía a la vista de consultas
+        //toda la informacion obtenida
         $resultado = $this->model->ejecutarConsultaSQL($sql, $limit);
         $this->registrarLog('CONSULTA_SQL', "Ejecución de consulta manual: $sql");
 
@@ -384,18 +383,18 @@ class GestionController {
             'error' => $resultado['error']
         ]);
     }
-
-    public function seleccionarBD() {
-        $bases = $this->model->listarBasesDeDatos();
+    /////////priemra version de vistas, inservible, pero me da cosa borrarla
+    //public function seleccionarBD() {
+    //    $bases = $this->model->listarBasesDeDatos();
 
         // Si no hay ninguna base creada, redirigimos directamente al formulario de creación
-        if (empty($bases)) {
-            header("Location: index.php?controller=GestionController&action=crearBD");
-            exit;
-        }
+    //    if (empty($bases)) {
+    //        header("Location: index.php?controller=GestionController&action=crearBD");
+    //        exit;
+    //    }
 
         // Si hay bases, mostramos la vista para seleccionar
-        View::show('seleccionarBDView', ['bases' => $bases]);
-    }
+    //    View::show('seleccionarBDView', ['bases' => $bases]);
+    //}
 }  
 
